@@ -5,13 +5,17 @@ Este é um agente de Inteligência Artificial que integra o WhatsApp (via Evolut
 ## 🚀 Funcionalidades
 - **Verificação de Disponibilidade:** O agente consulta o calendário antes de sugerir ou marcar um horário.
 - **Agendamento Inteligente:** Cria eventos no Google Calendar com resumo e descrição.
-- **Processamento de Linguagem Natural:** Entende frases como "Tem horário dia 6 às 10h?" ou "Pode marcar para amanhã?".
+- **Lembretes Automáticos:** Envia uma mensagem 30 minutos antes de cada reunião.
+- **Sessão de Follow-up:** Pergunta como foi a reunião 5 minutos após o término.
+- **Processamento de Linguagem Natural:** Entende frases naturais para agendamentos.
 - **Integração WhatsApp:** Recebe e envia mensagens através da Evolution API v2.
 
 ## 🛠️ Tecnologias
 - **Python 3.10+**
-- **FastAPI:** Framework para o Webhook.
-- **OpenAI GPT-4o:** Cérebro do agente (com Function Calling).
+- **FastAPI:** Framework para o Webhook e API.
+- **OpenAI GPT-4o:** IA para processamento de mensagens.
+- **MongoDB:** Persistência de histórico e controle de notificações.
+- **APScheduler:** Agendamento de tarefas em segundo plano para lembretes.
 - **Google Calendar API:** Manipulação da agenda.
 - **Evolution API:** Interface com o WhatsApp.
 
@@ -20,6 +24,19 @@ Este é um agente de Inteligência Artificial que integra o WhatsApp (via Evolut
 2.  **OpenAI API Key:** Gerar uma chave para o GPT-4o.
 3.  **Evolution API:** Uma instância do WhatsApp conectada.
 4.  **Ngrok:** Para exposição do webhook local (se for testar localmente).
+5.  **MongoDB:** Uma instância do MongoDB rodando (local ou Atlas).
+
+## 📂 Estrutura do Projeto
+```text
+app/
+├── agent/       # Lógica do Assistente OpenAI
+├── database/    # Gerenciamento do MongoDB
+├── tool/        # Ferramentas (Google Calendar)
+├── webhook/     # Endpoints da Evolution API
+├── followup/    # Lógica de lembretes e pós-reunião
+└── scheduler/   # Gerenciador de tarefas de fundo
+main.py          # Ponto de entrada da aplicação
+```
 
 ## 🔧 Instalação e Configuração
 

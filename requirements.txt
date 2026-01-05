@@ -9,3 +9,5 @@ pydantic
 python-dateutil
 pymongo
 dnspython
+apscheduler
+pytz

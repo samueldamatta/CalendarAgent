@@ -12,8 +12,24 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 calendar = GoogleCalendarClient()
 
 def get_calendar_tools():
-    # ... (mesma função anterior)
     return [
+        {
+            "type": "function",
+            "function": {
+                "name": "think",
+                "description": "Use esta ferramenta para raciocinar, planejar os próximos passos ou analisar informações antes de tomar uma ação.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "thought": {
+                            "type": "string",
+                            "description": "O seu raciocínio interno ou plano de ação.",
+                        },
+                    },
+                    "required": ["thought"],
+                },
+            },
+        },
         {
             "type": "function",
             "function": {
@@ -71,10 +87,15 @@ def process_message(user_id: str, user_message: str):
     system_message = {"role": "system", "content": f"""Você é um assistente de agendamento do Samuel. 
         Hojé é {current_date}. 
         Seu objetivo é marcar reuniões no Google Calendar.
+        
+        Você tem uma ferramenta chamada 'think'. Use-a SEMPRE antes de agendar algo complexo ou quando precisar organizar seu raciocínio.
+        
         Siga EXATAMENTE estes passos:
-        1. Sempre verifique a disponibilidade usando 'check_availability' antes de qualquer outra coisa.
-        2. Se o horário solicitado estiver livre, use 'book_appointment' para marcar.
-        3. Se estiver ocupado, sugira outro serviço/horário.
+        1. Se a solicitação for complexa, use 'think' para planejar.
+        2. Sempre verifique a disponibilidade usando 'check_availability' antes de qualquer outra coisa.
+        3. Se o horário solicitado estiver livre, use 'book_appointment' para marcar.
+        4. Se estiver ocupado, sugira outro serviço/horário.
+        
         Responda sempre em Português de forma gentil e curta.
         Importante: Os agendamentos são feitos no fuso horário America/Sao_Paulo (Brasília)."""}
 
@@ -125,9 +146,14 @@ def process_message(user_id: str, user_message: str):
             function_name = tool_call.function.name
             function_args = json.loads(tool_call.function.arguments)
             
-            print(f"--- Agent calling tool: {function_name} with {function_args}")
+            print(f"--- Agent calling tool: {function_name}")
             
-            if function_name == "check_availability":
+            result = ""
+            if function_name == "think":
+                thought = function_args.get("thought")
+                print(f"💭 PENSAMENTO: {thought}")
+                result = "Pensamento registrado. Continue sua análise."
+            elif function_name == "check_availability":
                 result = calendar.check_availability(function_args.get("date"))
             elif function_name == "book_appointment":
                 result = calendar.create_event(
@@ -137,7 +163,24 @@ def process_message(user_id: str, user_message: str):
                     description=function_args.get("description", "")
                 )
                 if result:
-                    result = f"Agendamento confirmado: {result.get('htmlLink')}"
+                    event_id = result.get('id')
+                    html_link = result.get('htmlLink')
+                    
+                    # Salva o agendamento para notificações futuras
+                    appointment_info = {
+                        "user_id": user_id,
+                        "event_id": event_id,
+                        "summary": function_args.get("summary"),
+                        "start_time": function_args.get("start_time"),
+                        "end_time": function_args.get("end_time"),
+                        "reminder_sent": False,
+                        "follow_up_sent": False,
+                        "created_at": datetime.datetime.utcnow().isoformat()
+                    }
+                    db_manager.save_appointment(appointment_info)
+                    print(f"💾 Agendamento salvo no banco para notificações: {summary} ({start_time})")
+                    
+                    result = f"Agendamento confirmado: {html_link}"
                 else:
                     result = "Erro ao realizar o agendamento."
             

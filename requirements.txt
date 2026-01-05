@@ -7,3 +7,5 @@ python-dotenv
 requests
 pydantic
 python-dateutil
+pymongo
+dnspython

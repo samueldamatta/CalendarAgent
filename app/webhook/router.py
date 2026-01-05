@@ -28,8 +28,8 @@ async def evolution_webhook(request: Request):
         if text and remote_jid:
             print(f"Message from {remote_jid}: {text}")
             
-            # Process with AI Agent
-            response_text = process_message(text)
+            # Process with AI Agent (passando o remote_jid como user_id para a memória)
+            response_text = process_message(remote_jid, text)
             print(f"Agent response: {response_text}")
             
             # Send back to WhatsApp using the full remote_jid

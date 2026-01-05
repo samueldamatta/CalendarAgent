@@ -45,14 +45,27 @@ Este é um agente de Inteligência Artificial que integra o WhatsApp (via Evolut
 5.  **Credenciais do Google:**
     - Coloque o arquivo `credentials.json` na raiz do projeto.
 
-## 🏃 Como Rodar
+## 🏃 Como Rodar Localmente
 
 1.  **Iniciar o servidor:**
     ```bash
+    # Com o venv ativado
     python main.py
     ```
-2.  **Autorizar o Google:** Na primeira execução, clique no link impresso no terminal para autorizar o acesso ao seu calendário.
-3.  **Ngrok (Opcional):** Em outro terminal, rode `ngrok http 8000` e configure a URL gerada no seu Webhook da Evolution API.
+2.  **Expor para a Internet (Ngrok):**
+    Abra um **novo terminal** e rode:
+    ```bash
+    ngrok http 8000
+    ```
+    Copie a URL `https://...` gerada.
+
+3.  **Configurar o Webhook:**
+    - Na Evolution API, acesse as configurações da sua instância.
+    - Na aba **Webhooks**, cole a URL do ngrok seguida de `/webhook`. Exemplo:
+      `https://random-id.ngrok-free.app/webhook`
+    - Ative o evento `MESSAGES_UPSERT`.
+
+4.  **Autorizar o Google:** Na primeira execução, clique no link impresso no terminal do Python para autorizar o acesso à sua conta.
 
 ## 🤖 Exemplo de Fluxo
 1.  **Usuário:** "Oi, tem horário livre dia 8 pela manhã?"

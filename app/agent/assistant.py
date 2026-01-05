@@ -2,7 +2,7 @@ import json
 import os
 import datetime
 from openai import OpenAI
-from google_calendar import GoogleCalendarClient
+from app.tool.google_calendar import GoogleCalendarClient
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -119,5 +119,3 @@ def process_message(user_message: str):
                 "name": function_name,
                 "content": str(result),
             })
-        
-        # O loop continua para permitir que o modelo tome outra ação baseada no resultado da ferramenta

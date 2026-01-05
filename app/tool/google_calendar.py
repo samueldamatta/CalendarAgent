@@ -17,23 +17,24 @@ class GoogleCalendarClient:
 
     def _authenticate(self):
         """Authenticates the user and returns the service object."""
-        if os.path.exists('token.json'):
-            self.creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        # Note: We assume token.json and credentials.json are in the root directory relative to execution
+        token_path = 'token.json'
+        creds_path = 'credentials.json'
+
+        if os.path.exists(token_path):
+            self.creds = Credentials.from_authorized_user_file(token_path, SCOPES)
         
-        # If there are no (valid) credentials available, let the user log in.
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
                 self.creds.refresh(Request())
             else:
-                if not os.path.exists('credentials.json'):
-                    raise FileNotFoundError("The file 'credentials.json' was not found. Please provide it from Google Cloud Console.")
+                if not os.path.exists(creds_path):
+                    raise FileNotFoundError(f"The file '{creds_path}' was not found. Please provide it from Google Cloud Console.")
                 
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', SCOPES)
+                flow = InstalledAppFlow.from_client_secrets_file(creds_path, SCOPES)
                 self.creds = flow.run_local_server(port=0)
             
-            # Save the credentials for the next run
-            with open('token.json', 'w') as token:
+            with open(token_path, 'w') as token:
                 token.write(self.creds.to_json())
 
         try:
@@ -97,7 +98,6 @@ class GoogleCalendarClient:
             start = event['start'].get('dateTime', event['start'].get('date'))
             end = event['end'].get('dateTime', event['end'].get('date'))
             
-            # Formata os horários para ficarem mais legíveis (ex: 09:00 às 10:00)
             if 'T' in start:
                 start_time = start.split('T')[1][:5]
                 end_time = end.split('T')[1][:5]
